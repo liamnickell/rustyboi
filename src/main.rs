@@ -2,10 +2,7 @@ extern crate minifb;
 
 use minifb::{Key, Window, WindowOptions};
 
-use std::error::Error;
-use std::fs::File;
-use std::io::prelude::*;
-use std::path::Path;
+mod rom;
 
 const WIDTH: usize = 160;
 const HEIGHT: usize = 144;
@@ -13,17 +10,7 @@ const HEIGHT: usize = 144;
 fn main() {
     //open rom
     let romName = "../Roms/tetris.gb";
-    let path = Path::new(romName);
-    let display = path.display();
-    let mut file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display,why.description()),
-        Ok(file) => file,
-    };
-    let mut rom = Vec::new();
-    file.read_to_end(&mut rom);
-    println!("{:?}", rom);
-    //I'm not entirely sure if what's opened is correct^
-    //but we should probably upload this into mem afterwards
+    rom::openRom(romName);
 
 
    //create window
