@@ -12,7 +12,7 @@ pub struct Regs {
     pc: u16,
 }
 
-// TODO: consider using binary values and treating flags as masks
+// bit locations of each flag in reg f
 enum Flags {
     Zero = 7,
     Sub = 6,
@@ -22,15 +22,16 @@ enum Flags {
 
 impl Regs {
     pub fn init() -> Regs {
+        // these are the values the regs are set to on startup (from manual)
         Regs {
-            a: 0x00,
+            a: 0x01,
             b: 0x00,
-            c: 0x00,
+            c: 0x13,
             d: 0x00,
-            e: 0x00,
-            f: 0x00,
-            h: 0x00,
-            l: 0x00,
+            e: 0xd8,
+            f: 0xb0,
+            h: 0x01,
+            l: 0x4d,
             sp: 0xfffe,
             pc: 0x0100,
         }        
@@ -42,6 +43,7 @@ impl Regs {
     pub fn c(&self) -> u8 { self.c }
     pub fn d(&self) -> u8 { self.d }
     pub fn e(&self) -> u8 { self.e }
+    pub fn f(&self) -> u8 { self.f }
     pub fn h(&self) -> u8 { self.a }
     pub fn l(&self) -> u8 { self.l }
 
@@ -52,10 +54,10 @@ impl Regs {
     pub fn hl(&self) -> u16 { ((self.h as u16) << 8) | (self.l as u16) }
 
     // get state of cpu flags
-    pub fn zflag(&self) -> bool { self.f & (1 << (Flags::Zero as u8)) }
-    pub fn sflag(&self) -> bool { self.f & (1 << (Flags::Sub as u8)) }
-    pub fn hflag(&self) -> bool { self.f & (1 << (Flags::HalfCarry as u8)) }
-    pub fn cflag(&self) -> bool { self.f & (1 << (Flags::Carry as u8)) }
+    pub fn zflag(&self) -> bool { self.f & (1 << (Flags::Zero as u8)) != 0 }
+    pub fn sflag(&self) -> bool { self.f & (1 << (Flags::Sub as u8)) != 0 }
+    pub fn hflag(&self) -> bool { self.f & (1 << (Flags::HalfCarry as u8)) != 0 }
+    pub fn cflag(&self) -> bool { self.f & (1 << (Flags::Carry as u8)) != 0 }
 
     // get pc and sp values
     pub fn sp(&self) -> u16 { self.sp }
@@ -92,10 +94,9 @@ impl Regs {
     }
 
     // setting cpu flags
-    // TODO: test this
     pub fn set_zflag(&mut self, val: bool) { 
         if val {
-            self.f |= (1 << Flags::Zero as u8);
+            self.f |= 1 << (Flags::Zero as u8);
         } else {
             self.f &= !(1 << (Flags::Zero as u8));
         }
@@ -103,7 +104,7 @@ impl Regs {
 
     pub fn set_sflag(&mut self, val: bool) { 
         if val {
-            self.f |= (1 << Flags::Sub as u8);
+            self.f |= 1 << (Flags::Sub as u8);
         } else {
             self.f &= !(1 << (Flags::Sub as u8));
         }
@@ -111,7 +112,7 @@ impl Regs {
 
     pub fn set_hflag(&mut self, val: bool) { 
         if val {
-            self.f |= (1 << Flags::HalfCarry as u8);
+            self.f |= 1 << (Flags::HalfCarry as u8);
         } else {
             self.f &= !(1 << (Flags::HalfCarry as u8));
         }
@@ -119,7 +120,7 @@ impl Regs {
 
     pub fn set_cflag(&mut self, val: bool) { 
         if val {
-            self.f |= (1 << Flags::Carry as u8);
+            self.f |= 1 << (Flags::Carry as u8);
         } else {
             self.f &= !(1 << (Flags::Carry as u8));
         }
