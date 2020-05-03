@@ -11,7 +11,7 @@ pub struct Registers{
     pub sp: u16,
 }
 
-pub struct Flag{
+pub struct Flags{
     C : bool, // carry
     H : bool, // half carry
     Z : bool, // is zero
