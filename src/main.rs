@@ -3,6 +3,8 @@ extern crate minifb;
 use minifb::{Key, Window, WindowOptions};
 
 mod rom;
+mod mmu;
+mod cpu;
 
 const WIDTH: usize = 160;
 const HEIGHT: usize = 144;
@@ -13,6 +15,7 @@ fn main() {
     rom::openRom(romName);
 
     //set up cpu?
+    //let cpu = CPU:init();
 
 
    //create window
@@ -41,6 +44,7 @@ fn main() {
     while window.is_open() {
 
         //run cpu   
+
 
         //udpate window buffer with 
         for x in 0..WIDTH{

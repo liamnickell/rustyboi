@@ -5,6 +5,7 @@ use std::path::Path;
 
 //right not this is strictly for testing purposes
 
+
 pub fn openRom(name: &str){
     //let romName = *name;
     let path = Path::new(name);
@@ -21,6 +22,5 @@ pub fn openRom(name: &str){
         print!("{:X}, ", romData[i]);
     }
     
-    println!("\nDesired instruction: {:X}\n", romData[0x104])
-;
+    println!("\nDesired instruction: {:X}\n", romData[0x104]);
 }
