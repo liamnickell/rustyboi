@@ -1,5 +1,5 @@
 pub struct CPU {
-    // regs, fetch data, fetch addr, cycles, etc.
+    // regs, fetch data, cycles, etc.
 }
 
 impl CPU {
@@ -25,7 +25,7 @@ impl CPU {
     }
 
     pub fn decode() {
-        // Instruction ins  = match opcode { opcodes => Instruction(string, src, dest, cycles) }
+        // Instruction ins  = match opcode { opcodes => Instruction(string, src, dest, ins, cycles) }
     }
 
     // general execute instruction functions with parameters
