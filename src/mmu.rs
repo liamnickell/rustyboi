@@ -18,27 +18,40 @@ pub stuct MMU {
     //FF80 - FFFE High RAM (HRAM)	
     //FFFF - FFFF Interrupts Enable Register (IE)	
 
-    memory: [u8 : 0x10000];
-    cart: [u8: 0x4000]; //cartriage 
+    memory: Vec<u8>,
+    cart: Vec<u8>,    //cartridge
 }
 
 impl MMU {
-    pub fn init(filename: &str) -> MMU {
-        MMU {
+    pub fn init(filename: &str, clk: &mut Clock) -> MMU {
+        let mut mmu = MMU {
             // initialize elements of MMU to correct sizes and values
-            openRom(*filename);
+            memory: vec![0; 0x10000],
+            cart: vec![0; 0x4000],
         }
+
+        openRom(*filename, mmu);
+        mmu
     }
 
-    pub fn read(addr: u16) -> u8 {
-        return memory[addr];
+    pub fn read_byte(addr: u16) -> u8 {
+        memory[addr]
     }
 
-    pub fn write(addr: u16, data: u8) {
-        memory[addr] = data;   
+    pub fn write_byte(addr: u16, data: u8) {
+        memory[addr] = data;
     }
 
-    pub fn openRom(name: &str){
+    pub fn read_word(addr: u16) -> u16 {
+        ((memory[addr] as u16) << 8) | (memory[addr + 1] as u16);
+    }
+
+    pub fn write_word(addr: u16, data: u16) {
+        memory[addr] = (data >> 8) as u8;
+        memory[addr + 1] = (data & 0x00ff) as u8;
+    }
+
+    pub fn openRom(name: &str, mmu: &mut MMU) {
         //let romName = *name;
         let path = Path::new(name);
         let display = path.display();
@@ -47,20 +60,8 @@ impl MMU {
             Ok(file) => file,
         };
 
-        let mut romData = Vec::new();
-        file.read_to_end(&mut romData);
-
-        //this is probably incorrect idk
-        cart = romData;
-
-        //load romData into memory
-        for i in 0..romData.len{
-            memory[i] = romData[i];
-        }
-
-        for i in 0..romData.len(){
-            print!("{:X}, ", romData[i]);
-        }
+        // need to figure out how we're putting cart in mem (separate module for cart?)
+        file.read_to_end(mmu.memory);
     }
 
 }

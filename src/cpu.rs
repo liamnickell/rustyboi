@@ -1,8 +1,7 @@
 pub struct CPU {
     regs: Regs,
     mmu: MMU,
-    opcode: u8,
-    cycles: u8,
+    write_addr: u16,
     clock: Clock,
     halted: bool,
 }
@@ -11,8 +10,9 @@ impl CPU {
     pub fn init() -> CPU {
         CPU {
             regs: Regs::init(),
-            clock: Clock::init(),
             mmu: MMU::init(clock),
+            write_addr: 0x00,
+            clock: Clock::init(),
             halted: false,
         }
     }
@@ -29,26 +29,29 @@ impl CPU {
         data
     }
 
+    pub fn write_byte(&mut self, data: u8) {
+        self.mmu.write_byte(self.write_addr, data);
+    }
+
+    pub fn write_word(&mut self, data: u16) {
+        self.mmu.write_word(self.write_addr, data);
+    }
+
     pub fn run(&mut self) {
+        self.clock.tick(self.cpu_cycle());
+    }
+
+    pub fn cpu_cycle(&mut self) -> u8 {
+        if halted { 4 }
+
         let opcode = self.fetch_byte();
         match opcode {
-            0x00 => self.nop(),
-            0x01 => self.ld(),
-            0x02 => ,
-            0x03 => ,
-            0x04 => ,
-            0x05 => ,
-            0x06 => ,
-            0x07 => ,
-            0x08 => ,
-            0x09 => ,
-            0x0a => ,
-            0x0b => ,
-            0x0c => ,
-            0x0d => ,
-            0x0e => ,
-            0x0f => ,
-            0x10 => self.stop(),
+            0x00 => { self.nop(); 4 },
+            0x01 => { self.ld_word(self.fetch_word, self.regs.set_bc); 12 },
+            0x02 => { self.write_addr = self.regs.bc(); self.ld_byte(self.regs.a, self.write_byte); 8 },
+            // ...
+            0x10 => { self.stop(); 4 },
+            // ...
             // other instructions
         }
     }
@@ -56,32 +59,25 @@ impl CPU {
     
     // general execute instruction functions with parameters
 
-    fn nop() {
-        4
+    // move 8 bit value from src to dest
+    fn ld_byte(&mut self, src: fn() -> u8, dest: fn(u8)) {
+        dest(src());
     }
 
     // move 16 bit value from src to dest
-    fn ld(src: fn() -> u16, dest: fn(u16)) {
-
+    fn ld_word(&mut self, src: fn() -> u16, dest: fn(u16)) {
+        dest(src());
     }
 
-    // move 8 bit value from src to dest
-    fn ld(src: fn() -> u8, dest: fn(u8)) {
-
-    }
-
-    fn stop() {
+    fn stop(&mut self) {
         if self.fetch_byte() == 0x00 {
             self.halt = true;
             // other stuff ?
         }
-
-        4
     }
 
-    fn halt() {
+    fn halt(&mut self) {
         self.halt = true;
         // other stuff ?
-        4
     }
 }
