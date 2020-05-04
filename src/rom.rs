@@ -15,7 +15,7 @@ pub fn openRom(name: &str){
 
     let mut romData = Vec::new();
     file.read_to_end(&mut romData);
-    println!("{:?}", romData);
+    //println!("{:?}", romData);
     //I'm not entirely sure if what's opened is correct^
     //but we should probably upload this into mem afterwards
 }
