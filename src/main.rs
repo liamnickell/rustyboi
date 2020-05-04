@@ -42,6 +42,7 @@ fn main() {
 
         //run cpu   
 
+        //udpate window buffer with 
         for x in 0..WIDTH{
             for y in 0..HEIGHT{
                 buffer[x*HEIGHT + y] = 0xff0000;

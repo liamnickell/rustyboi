@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
+//right not this is strictly for testing purposes
 
 pub fn openRom(name: &str){
     //let romName = *name;
@@ -13,9 +14,13 @@ pub fn openRom(name: &str){
         Ok(file) => file,
     };
 
-    let mut romData = Vec::new();
+    let mut romData = vec![];
     file.read_to_end(&mut romData);
-    //println!("{:?}", romData);
-    //I'm not entirely sure if what's opened is correct^
-    //but we should probably upload this into mem afterwards
+
+    for i in 0x0100..romData.len(){
+        print!("{:X}, ", romData[i]);
+    }
+    
+    println!("\nDesired instruction: {:X}\n", romData[0x104])
+;
 }
