@@ -20,7 +20,7 @@ pub struct MMU {
     //FFFF - FFFF Interrupts Enable Register (IE)	
 
     memory: [u8; 0x10000],
-    cart: [u8; 0x4000] //cartriage 
+    cart: [u8; 0x4000], //cartriage 
 }
 
 impl MMU {
@@ -31,12 +31,21 @@ impl MMU {
         }
     }
 
-    pub fn read(&mut self, addr: u16) -> u8 {
+    pub fn read_byte(&mut self, addr: u16) -> u8 {
         self.memory[addr as usize]
     }
 
-    pub fn write(&mut self, addr: u16, data: u8) {
-        self.memory[addr as usize] = data;   
+    pub fn write_byte(&mut self, addr: u16, data: u8) {
+        self.memory[addr as usize] = data;
+    }
+
+    pub fn read_word(&mut self, addr: u16) -> u16 {
+        ((self.memory[(addr + 1) as usize] as u16) << 8) | (self.memory[addr as usize] as u16)      // little endian
+    }
+
+    pub fn write_word(&mut self, addr: u16, data: u16) {
+        self.memory[addr as usize] = (data & 0x00ff) as u8;        // little endian
+        self.memory[(addr + 1) as usize] = (data >> 8) as u8;
     }
 
     pub fn openRom(&mut self, name: &str){
@@ -44,7 +53,7 @@ impl MMU {
         let path = Path::new(name);
         let display = path.display();
         let mut file = match File::open(&path) {
-            Err(why) => panic!("couldn't open {}: {}", display,why.description()),
+            Err(why) => panic!("couldn't open {}: {}", display, why.description()),
             Ok(file) => file,
         };
 

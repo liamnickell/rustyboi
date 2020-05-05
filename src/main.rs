@@ -1,6 +1,10 @@
 extern crate minifb;
-
 use minifb::{Key, Window, WindowOptions};
+
+mod regs;
+mod clock;
+mod mmu;
+mod cpu;
 
 const WIDTH: usize = 160;
 const HEIGHT: usize = 144;
@@ -8,7 +12,7 @@ const HEIGHT: usize = 144;
 fn main() {
     //open rom
     let romName = "../Roms/tetris.gb";
-    rom::openRom(romName);
+    //rom::openRom(romName);
 
     //set up cpu?
     //let cpu = CPU:init();
