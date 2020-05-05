@@ -2,10 +2,6 @@ extern crate minifb;
 
 use minifb::{Key, Window, WindowOptions};
 
-mod rom;
-mod mmu;
-mod cpu;
-
 const WIDTH: usize = 160;
 const HEIGHT: usize = 144;
 
