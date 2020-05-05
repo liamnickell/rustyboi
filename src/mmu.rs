@@ -24,11 +24,14 @@ pub struct MMU {
 }
 
 impl MMU {
-    pub fn init(filename: &str) -> MMU {
-        MMU {
+    pub fn init(rom_file: &str) -> MMU {
+        let mut mmu = MMU {
             memory: [0; 0x10000],
             cart: [0; 0x4000]
-        }
+        };
+        
+        mmu.open_rom(rom_file);
+        mmu
     }
 
     pub fn read_byte(&mut self, addr: u16) -> u8 {
@@ -48,28 +51,28 @@ impl MMU {
         self.memory[(addr + 1) as usize] = (data >> 8) as u8;
     }
 
-    pub fn openRom(&mut self, name: &str){
+    pub fn open_rom(&mut self, name: &str) {
         //let romName = *name;
         let path = Path::new(name);
         let display = path.display();
         let mut file = match File::open(&path) {
-            Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+            Err(why) => panic!("couldn't open {}: {}", display, why.to_string()),
             Ok(file) => file,
         };
 
-        let mut romData = Vec::new();
-        file.read_to_end(&mut romData);
+        let mut rom_data = Vec::new();
+        file.read_to_end(&mut rom_data);
 
         //this is probably incorrect idk
-        //self.cart = romData;
+        //self.cart = rom_data;
 
-        //load romData into memory
-        for i in 0..romData.len(){
-            self.memory[i] = romData[i];
+        //load rom_data into memory
+        for i in 0..rom_data.len(){
+            self.memory[i] = rom_data[i];
         }
 
-        for i in 0..romData.len(){
-            print!("{:X}, ", romData[i]);
+        for i in 0..rom_data.len(){
+            print!("{:X}, ", rom_data[i]);
         }
     }
 

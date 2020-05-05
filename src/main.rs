@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 extern crate minifb;
 use minifb::{Key, Window, WindowOptions};
 
@@ -6,12 +8,15 @@ mod clock;
 mod mmu;
 mod cpu;
 
+use cpu::CPU;
+
 const WIDTH: usize = 160;
 const HEIGHT: usize = 144;
+const CYCLES_PER_UPDATE: u32 = 69833;
 
 fn main() {
     //open rom
-    let romName = "../Roms/tetris.gb";
+    let rom_file = "../Roms/tetris.gb";
     //rom::openRom(romName);
 
     //set up cpu?
@@ -38,13 +43,16 @@ fn main() {
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
-    let mut count = 0;
+    // construct cpu
+    let mut cpu = CPU::init(rom_file);
 
     //first run cpu such that total cycles is approximately 1/60 second, then update buffer
     while window.is_open() {
-
-        //run cpu   
-
+        //run cpu
+        let mut cycles_passed: u32 = 0;
+        while cycles_passed < CYCLES_PER_UPDATE {
+            cycles_passed += cpu.cpu_cycle();
+        }
 
         //udpate window buffer with 
         for x in 0..WIDTH{

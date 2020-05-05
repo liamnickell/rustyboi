@@ -1,12 +1,10 @@
 use crate::regs::Regs;
 use crate::mmu::MMU;
-use crate::clock::Clock;
 
 pub struct CPU {
     regs: Regs,
     mmu: MMU,
     write_addr: u16,
-    clock: &'static Clock,
     halted: bool,
 }
 
@@ -29,13 +27,11 @@ enum RegIndex {
 }
 
 impl CPU {
-
-    pub fn init(romName: &str, clock: &'static Clock) -> CPU {
+    pub fn init(rom_file: &str) -> CPU {
         CPU {
             regs: Regs::init(),
-            mmu: MMU::init(romName),
+            mmu: MMU::init(rom_file),
             write_addr: 0x00,
-            clock: clock,
             halted: false,
         }
     }
@@ -52,17 +48,13 @@ impl CPU {
         word
     }
 
-    pub fn run(&mut self) {
-        self.clock.tick(self.cpu_cycle());
-    }
-
-    pub fn cpu_cycle(&mut self) -> u8 {
+    pub fn cpu_cycle(&mut self) -> u32 {
         if self.halted { return 4 } 
         let opcode = self.fetch_ins_byte();
         
         match opcode {
             0x00 => { 4 },
-            0x01 => { self.ld_word(self.fetch_ins_word(), 0, Some(RegIndex::BC)); 12 },
+            0x01 => { let data = self.fetch_ins_word(); self.ld_word(data, 0, Some(RegIndex::BC)); 12 },
             0x02 => { self.ld_byte(self.regs.a(), self.regs.bc(), None); 8 },
             0x03 => { self.inc(Some(RegIndex::BC), 0); 8 },
             0x04 => { self.inc(Some(RegIndex::B), 0); 4 },
@@ -86,6 +78,7 @@ impl CPU {
             0x3d => { self.dec(Some(RegIndex::A), 0); 4 },
             // ...
             // other instructions
+            _ => { 0 },
         }
     }
 
@@ -103,6 +96,7 @@ impl CPU {
                 RegIndex::E => self.regs.set_e(src),
                 RegIndex::H => self.regs.set_h(src),
                 RegIndex::L => self.regs.set_l(src),
+                _ => (),
             };
         } else {
             self.mmu.write_byte(dest, src);
@@ -117,6 +111,7 @@ impl CPU {
                 RegIndex::DE => self.regs.set_de(src),
                 RegIndex::HL => self.regs.set_hl(src),
                 RegIndex::SP => self.regs.set_sp(src),
+                _ => (),
             };
         } else {
             self.mmu.write_word(dest, src);
@@ -139,9 +134,11 @@ impl CPU {
                 RegIndex::DE => self.regs.set_de(self.regs.de() + 1),
                 RegIndex::HL => self.regs.set_hl(self.regs.hl() + 1),
                 RegIndex::SP => self.regs.set_sp(self.regs.sp() + 1),
-            }
+                _ => (),
+            };
         } else {
-            self.mmu.write_word(dest, self.mmu.read_word(dest) + 1);
+            let value = self.mmu.read_word(dest) + 1;
+            self.mmu.write_word(dest, value);
         }
     }
 
@@ -161,9 +158,11 @@ impl CPU {
                 RegIndex::DE => self.regs.set_de(self.regs.de() - 1),
                 RegIndex::HL => self.regs.set_hl(self.regs.hl() - 1),
                 RegIndex::SP => self.regs.set_sp(self.regs.sp() - 1),
-            }
+                _ => (),
+            };
         } else {
-            self.mmu.write_word(dest, self.mmu.read_word(dest) - 1);
+            let value = self.mmu.read_word(dest) - 1;
+            self.mmu.write_word(dest, value);
         }
     }
 

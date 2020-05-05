@@ -11,8 +11,8 @@ impl Clock {
         }
     }
 
-    pub fn tick(&mut self, num: u8) {
-        self.cycles += num;
+    pub fn tick(&mut self, num: u32) {
+        self.cycles += num as u128;
         // other stuff
     }
 }
