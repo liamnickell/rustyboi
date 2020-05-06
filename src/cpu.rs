@@ -28,12 +28,20 @@ enum RegIndex {
 
 impl CPU {
     pub fn init(rom_file: &str) -> CPU {
-        CPU {
+        let mut c = CPU {
             regs: Regs::init(),
             mmu: MMU::init(rom_file),
             write_addr: 0x00,
             halted: false,
-        }
+        };
+
+        c.power_up_seq();
+        c
+    }
+
+    // refer to section 2.7.1
+    pub fn power_up_seq(&mut self){
+        // is is auto-initialized by the instructions from 0-0x100, or do we need to initialize them?
     }
 
     pub fn fetch_ins_byte(&mut self) -> u8 {
