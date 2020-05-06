@@ -165,7 +165,7 @@ impl MMU {
         }
 
         for i in 0..rom_data.len(){
-            print!("{:X}, ", rom_data[i]);
+            //print!("{:X}, ", rom_data[i]);
         }
     }
 

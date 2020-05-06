@@ -7,14 +7,22 @@ mod regs;
 mod clock;
 mod mmu;
 mod cpu;
+mod gpu;
 
 use cpu::CPU;
+use gpu::GPU;
+use mmu::MMU;
+use std::num::Wrapping;
 
 const WIDTH: usize = 160;
 const HEIGHT: usize = 144;
+// only 160*144 out of 256*256 pixels are displayed controlled by scrollx and scroly
+
 const CYCLES_PER_UPDATE: u32 = 69833;
 
 fn main() {
+
+
     //open rom
     let rom_file = "../Roms/tetris.gb";
     //rom::openRom(romName);
@@ -24,7 +32,7 @@ fn main() {
 
 
    //create window
-    let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
+    let mut frame: Vec<u32> = vec![0; WIDTH * HEIGHT];
 
     let mut window = Window::new(
         "Rusty Boi ;)",
@@ -43,11 +51,15 @@ fn main() {
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
-    // construct cpu
+    // construct cpu, mmu and gpu
     let mut cpu = CPU::init(rom_file);
+    let mut mmu = MMU::init(rom_file);
+    let mut gpu = GPU::init(mmu);
 
     //first run cpu such that total cycles is approximately 1/60 second, then update buffer
     while window.is_open() {
+
+        
         //run cpu
         let mut cycles_passed: u32 = 0;
         while cycles_passed < CYCLES_PER_UPDATE {
@@ -57,11 +69,10 @@ fn main() {
         //udpate window buffer with 
         for x in 0..WIDTH{
             for y in 0..HEIGHT{
-                buffer[x*HEIGHT + y] = 0xff0000;
+                frame[x*HEIGHT + y] = gpu.output()[x*HEIGHT + y];
             }
         }
         
-        
-        window.update_with_buffer(&buffer, WIDTH, HEIGHT);
+        window.update_with_buffer(&frame, WIDTH, HEIGHT);
     }
 }
