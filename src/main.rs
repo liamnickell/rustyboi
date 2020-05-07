@@ -14,8 +14,8 @@ use gpu::GPU;
 use mmu::MMU;
 use std::num::Wrapping;
 
-const WIDTH: usize = 160;
-const HEIGHT: usize = 144;
+const WIDTH: usize = 256;
+const HEIGHT: usize = 256;
 // only 160*144 out of 256*256 pixels are displayed controlled by scrollx and scroly
 
 const CYCLES_PER_UPDATE: u32 = 69833;
@@ -59,11 +59,11 @@ fn main() {
     //first run cpu such that total cycles is approximately 1/60 second, then update buffer
     while window.is_open() {
 
-        
         //run cpu
         let mut cycles_passed: u32 = 0;
         while cycles_passed < CYCLES_PER_UPDATE {
             cycles_passed += cpu.cpu_cycle();
+            gpu.step(cycles_passed as u32);
         }
 
         //udpate window buffer with 
