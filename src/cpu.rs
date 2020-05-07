@@ -1,5 +1,9 @@
 use crate::regs::Regs;
 use crate::mmu::MMU;
+use crate::gpu::GPU;
+use std::num::Wrapping;
+
+//use crate::gpu::GPU;
 
 pub struct CPU {
     regs: Regs,
@@ -28,12 +32,20 @@ enum RegIndex {
 
 impl CPU {
     pub fn init(rom_file: &str) -> CPU {
-        CPU {
+        let mut c = CPU {
             regs: Regs::init(),
             mmu: MMU::init(rom_file),
             write_addr: 0x00,
             halted: false,
-        }
+        };
+
+        c.power_up_seq();
+        c
+    }
+
+    // refer to section 2.7.1
+    pub fn power_up_seq(&mut self){
+        // is is auto-initialized by the instructions from 0-0x100, or do we need to initialize them?
     }
 
     pub fn fetch_ins_byte(&mut self) -> u8 {
@@ -123,17 +135,17 @@ impl CPU {
     fn inc(&mut self, reg: Option<RegIndex>, dest: u16) {
         if let Some(r) = reg {
             match r {
-                RegIndex::A => self.regs.set_a(self.regs.a() + 1),
-                RegIndex::B => self.regs.set_b(self.regs.b() + 1),
-                RegIndex::C => self.regs.set_c(self.regs.c() + 1),
-                RegIndex::D => self.regs.set_d(self.regs.d() + 1),
-                RegIndex::E => self.regs.set_e(self.regs.e() + 1),
-                RegIndex::H => self.regs.set_h(self.regs.h() + 1),
-                RegIndex::L => self.regs.set_l(self.regs.l() + 1),
-                RegIndex::BC => self.regs.set_bc(self.regs.bc() + 1),
-                RegIndex::DE => self.regs.set_de(self.regs.de() + 1),
-                RegIndex::HL => self.regs.set_hl(self.regs.hl() + 1),
-                RegIndex::SP => self.regs.set_sp(self.regs.sp() + 1),
+                RegIndex::A => self.regs.set_b((Wrapping(self.regs.b()) + Wrapping(1)).0),
+                RegIndex::B => self.regs.set_b((Wrapping(self.regs.b()) + Wrapping(1)).0),
+                RegIndex::C => self.regs.set_b((Wrapping(self.regs.b()) + Wrapping(1)).0),
+                RegIndex::D => self.regs.set_b((Wrapping(self.regs.b()) + Wrapping(1)).0),
+                RegIndex::E => self.regs.set_b((Wrapping(self.regs.b()) + Wrapping(1)).0),
+                RegIndex::H => self.regs.set_b((Wrapping(self.regs.b()) + Wrapping(1)).0),
+                RegIndex::L => self.regs.set_b((Wrapping(self.regs.b()) + Wrapping(1)).0),
+                RegIndex::BC => self.regs.set_bc((Wrapping(self.regs.bc()) + Wrapping(1)).0),
+                RegIndex::DE => self.regs.set_de((Wrapping(self.regs.bc()) + Wrapping(1)).0),
+                RegIndex::HL => self.regs.set_hl((Wrapping(self.regs.bc()) + Wrapping(1)).0),
+                RegIndex::SP => self.regs.set_sp((Wrapping(self.regs.bc()) + Wrapping(1)).0),
                 _ => (),
             };
         } else {
@@ -147,17 +159,17 @@ impl CPU {
     fn dec(&mut self, reg: Option<RegIndex>, dest: u16) {
         if let Some(r) = reg {
             match r {
-                RegIndex::A => self.regs.set_a(self.regs.a() - 1),
-                RegIndex::B => self.regs.set_b(self.regs.b() - 1),
-                RegIndex::C => self.regs.set_c(self.regs.c() - 1),
-                RegIndex::D => self.regs.set_d(self.regs.d() - 1),
-                RegIndex::E => self.regs.set_e(self.regs.e() - 1),
-                RegIndex::H => self.regs.set_h(self.regs.h() - 1),
-                RegIndex::L => self.regs.set_l(self.regs.l() - 1),
-                RegIndex::BC => self.regs.set_bc(self.regs.bc() - 1),
-                RegIndex::DE => self.regs.set_de(self.regs.de() - 1),
-                RegIndex::HL => self.regs.set_hl(self.regs.hl() - 1),
-                RegIndex::SP => self.regs.set_sp(self.regs.sp() - 1),
+                RegIndex::A => self.regs.set_b((Wrapping(self.regs.b()) - Wrapping(1)).0),
+                RegIndex::B => self.regs.set_b((Wrapping(self.regs.b()) - Wrapping(1)).0),
+                RegIndex::C => self.regs.set_b((Wrapping(self.regs.b()) - Wrapping(1)).0),
+                RegIndex::D => self.regs.set_b((Wrapping(self.regs.b()) - Wrapping(1)).0),
+                RegIndex::E => self.regs.set_b((Wrapping(self.regs.b()) - Wrapping(1)).0),
+                RegIndex::H => self.regs.set_b((Wrapping(self.regs.b()) - Wrapping(1)).0),
+                RegIndex::L => self.regs.set_b((Wrapping(self.regs.b()) - Wrapping(1)).0),
+                RegIndex::BC => self.regs.set_bc((Wrapping(self.regs.bc()) - Wrapping(1)).0),
+                RegIndex::DE => self.regs.set_de((Wrapping(self.regs.bc()) - Wrapping(1)).0),
+                RegIndex::HL => self.regs.set_hl((Wrapping(self.regs.bc()) - Wrapping(1)).0),
+                RegIndex::SP => self.regs.set_sp((Wrapping(self.regs.bc()) - Wrapping(1)).0),
                 _ => (),
             };
         } else {
