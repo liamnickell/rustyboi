@@ -35,7 +35,7 @@ pub struct GPU{
 
 impl GPU {
 
-    pub fn init(mmu_ : MMU) -> GPU {
+    pub fn init(mmu_ : &mut MMU) -> GPU {
         let mut gpu = GPU{
             SX : 0,
             SY : 0,
@@ -43,7 +43,7 @@ impl GPU {
             STAT : 0,
             scan_line : 0,
             BGP : 0,
-            mmu : mmu_,
+            mmu : *mmu_,
             cycles : 0,
             mode : 0,
 
@@ -81,6 +81,8 @@ impl GPU {
             for j in 0..7{
                 let byte1 : u8 = byte_array[j] as u8;
                 let byte2 : u8 = byte_array[j+8] as u8;
+                //println!("{:b}", byte1);
+                //println!("{:b}", byte2);
 
                 let x0 : u8 = ((byte1 & 0b0000_0001)> 0) as u8 * 2 + ((byte2 & 0b0000_0001) > 0) as u8;
                 let x1 : u8 = ((byte1 & 0b0000_0010)> 0) as u8 * 2 + ((byte2 & 0b0000_0010) > 0) as u8;
@@ -105,6 +107,15 @@ impl GPU {
     }
 
     pub fn output(&mut self) -> Vec<u32>{
+        // print testing
+        /*for tile in 0..255 {
+            let byte_array : [u8; 16] = unsafe{ transmute(self.tile_set[tile].to_be())};
+            //println!("tile num: {}", tile);
+            for line in 0..7 {
+                //println!("{:b}", byte_array[line]);
+            }
+        }*/
+
         // just a wrapper function
         self.background.clone()
     }
@@ -135,6 +146,8 @@ impl GPU {
                 }
             }
         } else if (self.mode == modeVBLANK) {
+            //println!("vblank mode");
+            self.update_tiles();
             if (self.cycles >= 456) {
                 self.cycles = 0;
                 self.scan_line += 1;
@@ -142,7 +155,6 @@ impl GPU {
                     self.mode = modeOAM;
                     self.scan_line = 0;
                 }
-                self.update_tiles();
             }
         }
     }

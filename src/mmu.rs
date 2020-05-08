@@ -25,13 +25,13 @@ pub struct MMU {
 }
 
 impl MMU {
-    pub fn init(rom_file: &str) -> MMU {
+    pub fn init(rom_file: &str, boot_file: &str) -> MMU {
         let mut mmu = MMU {
             memory: [0; 0x10000],
             cart: [0; 0x4000],        
         };
         
-        mmu.open_rom(rom_file);
+        mmu.open_rom(rom_file, boot_file);
         mmu.cart_init();
         mmu
     }
@@ -144,7 +144,7 @@ impl MMU {
         }
     }
 
-    pub fn open_rom(&mut self, name: &str){
+    pub fn open_rom(&mut self, name: &str, boot: &str){
         //let romName = *name;
         let path = Path::new(name);
         let display = path.display();
