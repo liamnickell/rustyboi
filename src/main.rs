@@ -25,6 +25,7 @@ fn main() {
 
     //open rom
     let rom_file = "../Roms/tetris.gb";
+    let boot_file = "../Roms/DMR_ROM.bin";
     //rom::openRom(romName);
 
     //set up cpu?
@@ -52,17 +53,20 @@ fn main() {
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
     // construct cpu, mmu and gpu
-    let mut cpu = CPU::init(rom_file);
-    let mut mmu = MMU::init(rom_file);
-    let mut gpu = GPU::init(mmu);
+    let mut mmu = MMU::init(rom_file, boot_file);
+    let mut gpu = GPU::init(&mut mmu);
+    let mut cpu = CPU::init(rom_file, &mut mmu);
 
     //first run cpu such that total cycles is approximately 1/60 second, then update buffer
+    let mut total_cycles : u32 = 0;
     while window.is_open() {
 
         //run cpu
         let mut cycles_passed: u32 = 0;
-        while cycles_passed < CYCLES_PER_UPDATE {
-            cycles_passed += cpu.cpu_cycle();
+        while ((cycles_passed < CYCLES_PER_UPDATE) & (total_cycles < 300)) {
+            let i = cpu.cpu_cycle();
+            cycles_passed += i;
+            total_cycles += i;
             gpu.step(cycles_passed as u32);
         }
 

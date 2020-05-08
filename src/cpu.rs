@@ -3,6 +3,14 @@ use crate::mmu::MMU;
 use crate::gpu::GPU;
 use std::num::Wrapping;
 
+//use crate::gpu::GPU;
+
+pub struct CPU <'a>{
+    regs: Regs,
+    mmu: &'a MMU,
+    halted: bool,
+}
+
 enum RegIndex {
     A,
     B,
@@ -26,21 +34,15 @@ enum Condition {
     NC,
 }
 
-pub struct CPU {
-    regs: Regs,
-    mmu: MMU,
-    halted: bool,
-}
-
-impl CPU {
-    pub fn init(rom_file: &str) -> CPU {
+impl<'a> CPU<'a> {
+    pub fn init(rom_file: &str, mmu_: &'a mut MMU) -> CPU<'a> {
         let mut c = CPU {
             regs: Regs::init(),
-            mmu: MMU::init(rom_file),
+            mmu: mmu_,
             halted: false,
         };
 
-        c.power_up_seq();
+        //c.power_up_seq();
         c
     }
 
@@ -52,6 +54,7 @@ impl CPU {
     pub fn fetch_ins_byte(&mut self) -> u8 {
         let op = self.mmu.read_byte(self.regs.pc());
         self.regs.set_pc(self.regs.pc() + 1);
+        println!("ins: {:#12b}", op);
         op
     }
 
