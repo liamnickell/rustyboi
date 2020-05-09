@@ -317,9 +317,8 @@ LD C,(HL)
 LD C,A
 1  4
 - - - -
- 5x 	
  
- LD D,B
+LD D,B
 1  4
 - - - -	
 
