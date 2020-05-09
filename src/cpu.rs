@@ -583,36 +583,67 @@ impl CPU {
         self.regs.set_pc(addr);
     }
 
+    // rotate reg A left, putting the previous high order bit into carry flag
     fn rlca(&mut self) {
-        
+        let bit7 = self.regs.a() & (1 << 7) > 0;
+        let new_a = (self.regs.a() << 1) | bit7 as u8;
+
+        self.regs.set_a(new_a);
+        self.regs.set_cflag(bit7);
     }
 
-    fn rrca(&mut self) {
-        
-    }
-
+    // rotate reg A and carry flag together left
     fn rla(&mut self) {
-        
+        let bit7 = self.regs.a() & (1 << 7) > 0;
+        let new_a = (self.regs.a() << 1) | self.regs.cflag() as u8;
+
+        self.regs.set_a(new_a);
+        self.regs.set_cflag(bit7);
     }
 
+    // rotate reg A right, putting the previous high order bit into carry flag
+    fn rrca(&mut self) {
+        let bit0 = self.regs.a() & 1 > 0;
+        let new_a = (self.regs.a() >> 1) | ((bit0 as u8) << 7);
+
+        self.regs.set_a(new_a);
+        self.regs.set_cflag(bit0);
+    }
+
+    // rotate reg A and carry flag together right
     fn rra(&mut self) {
-        
+        let bit0 = self.regs.a() & 1 > 0;
+        let new_a = (self.regs.a() >> 1) | ((self.regs.cflag() as u8) << 7);
+
+        self.regs.set_a(new_a);
+        self.regs.set_cflag(bit0);
     }
 
+    // converts reg A into a binary coded decimal number
     fn daa(&mut self) {
-
+        
     }
 
+    // set reg A to its complement
     fn cpl(&mut self) {
-        
+        self.regs.set_a(self.regs.a() ^ 0xff);
+
+        self.regs.set_hflag(true);
+        self.regs.set_sflag(true);
     }
 
+    // set carry flag
     fn scf(&mut self) {
-        
+        self.regs.set_cflag(true);
+        self.regs.set_hflag(false);
+        self.regs.set_sflag(false);
     }
 
+    // set carry flag to its complement (flip bit)
     fn ccf(&mut self) {
-        
+        self.regs.set_cflag(!self.regs.cflag());
+        self.regs.set_hflag(false);
+        self.regs.set_sflag(false);
     }
 
     fn decode_cb(&mut self) -> u8 {
