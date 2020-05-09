@@ -621,7 +621,65 @@ impl CPU {
 
     // converts reg A into a binary coded decimal number
     fn daa(&mut self) {
-        
+        let a = self.regs.a();
+        let add_to_a: u8;
+
+        if self.regs.sflag() {
+            if self.regs.cflag() {
+                if self.regs.hflag() {
+                    add_to_a = 0x9a;
+                } else {
+                    add_to_a = 0xa0;
+                }
+            } else {
+                if self.regs.hflag() {
+                    add_to_a = 0xfa;
+                } else {
+                    add_to_a = 0x00;
+                }
+            }
+        } else {
+            if self.regs.cflag() {
+                if self.regs.hflag() {
+                    add_to_a = 0x66;
+                } else {
+                    if a & 0x0f <= 0x09 {
+                        add_to_a = 0x60;
+                    } else {
+                        add_to_a = 0x66;
+                    }
+                }
+            } else {
+                if self.regs.hflag() {
+                    if a & 0xf0 <= 0x90 {
+                        add_to_a = 0x06;
+                    } else {
+                        add_to_a = 0x66;
+                        self.regs.set_cflag(true);
+                    }
+                } else {
+                    if a & 0x0f <= 0x09 {
+                        if a & 0xf0 <= 0x90 {
+                            add_to_a = 0x00;
+                        } else {
+                            add_to_a = 0x60;
+                            self.regs.set_cflag(true);
+                        }
+                    } else {
+                        if a & 0xf0 <= 0x80 {
+                            add_to_a = 0x06;
+                        } else {
+                            add_to_a = 0x66;
+                            self.regs.set_cflag(true);
+                        }
+                    }
+                }
+            }
+        }
+
+        self.regs.set_a(self.regs.a().wrapping_add(add_to_a));
+        self.regs.set_zflag(self.regs.a() == 0);
+        self.regs.set_hflag(false);
     }
 
     // set reg A to its complement
@@ -652,6 +710,50 @@ impl CPU {
 
             _ => { self.undefined_op(op); 1 },
         }
+    }
+
+    fn rlc(&mut self) {
+
+    }
+
+    fn rl(&mut self) {
+
+    }
+
+    fn sla(&mut self) {
+
+    }
+
+    fn rrc(&mut self) {
+
+    }
+
+    fn rr(&mut self) {
+
+    }
+
+    fn sra(&mut self) {
+
+    }
+
+    fn swap(&mut self) {
+
+    }
+
+    fn srl(&mut self) {
+
+    }
+
+    fn bit(&mut self) {
+
+    }
+
+    fn res(&mut self) {
+
+    }
+
+    fn set(&mut self) {
+
     }
 
     fn undefined_op(&self, op: u8) {
