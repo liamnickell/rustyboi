@@ -53,27 +53,28 @@ fn main() {
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
     // construct cpu, mmu and gpu
-    let mut mmu = MMU::init(rom_file, boot_file);
-    let mut gpu = GPU::init(&mut mmu);
-    let mut cpu = CPU::init(rom_file, &mut mmu);
+    // let mut mmu = MMU::init(rom_file, boot_file);
+    // let mut gpu = GPU::init(&mut mmu);
+    let mut cpu = CPU::init(rom_file);
 
     //first run cpu such that total cycles is approximately 1/60 second, then update buffer
     let mut total_cycles : u32 = 0;
+    let mut cycles_passed: u32 = 0;
     while window.is_open() {
-
         //run cpu
-        let mut cycles_passed: u32 = 0;
-        while ((cycles_passed < CYCLES_PER_UPDATE) & (total_cycles < 300)) {
-            let i = cpu.cpu_cycle();
-            cycles_passed += i;
-            total_cycles += i;
-            gpu.step(cycles_passed as u32);
+        while cycles_passed < CYCLES_PER_UPDATE {
+            let ticks = cpu.cpu_cycle();
+            cycles_passed += ticks as u32;
+            total_cycles += ticks as u32;
+            // gpu.step(cycles_passed as u32);
         }
+
+        cycles_passed -= CYCLES_PER_UPDATE;
 
         //udpate window buffer with 
         for x in 0..WIDTH{
             for y in 0..HEIGHT{
-                frame[x*HEIGHT + y] = gpu.output()[x*HEIGHT + y];
+                // frame[x*HEIGHT + y] = gpu.output()[x*HEIGHT + y];
             }
         }
         

@@ -19,7 +19,6 @@ pub struct GPU{
     STAT : u8,  // LCDC Status FF41
     scan_line : u8, // Current scan line
     BGP : u8,  // background palette, 0xFF47
-    mmu : MMU,
     cycles : u32,
     mode : u8,
 
@@ -35,7 +34,7 @@ pub struct GPU{
 
 impl GPU {
 
-    pub fn init(mmu_ : &mut MMU) -> GPU {
+    pub fn init() -> GPU {
         let mut gpu = GPU{
             SX : 0,
             SY : 0,
@@ -43,7 +42,6 @@ impl GPU {
             STAT : 0,
             scan_line : 0,
             BGP : 0,
-            mmu : *mmu_,
             cycles : 0,
             mode : 0,
 
@@ -61,13 +59,13 @@ impl GPU {
         // update tile sets
         for i in 0..255 {
             for j in 0..15 {//  each tile is 16 bytes, !!!!assuming little endian here for now!!!!!
-                self.tile_set_0[i] += self.mmu.read_byte(0x8000 + (16 * i + j) as u16) as u128 * 2^(j as u128);
-                self.tile_set_1[i] += self.mmu.read_byte(0x8800 + (16 * i + j) as u16) as u128 * 2^(j as u128);
+                // self.tile_set_0[i] += self.mmu.read_byte(0x8000 + (16 * i + j) as u16) as u128 * 2^(j as u128);
+                // self.tile_set_1[i] += self.mmu.read_byte(0x8800 + (16 * i + j) as u16) as u128 * 2^(j as u128);
             }
         }
-        self.LCDC = self.mmu.read_byte(0xff40);
-        self.STAT = self.mmu.read_byte(0xff41);
-        self.BGP = self.mmu.read_byte(0xff47);
+        // self.LCDC = self.mmu.read_byte(0xff40);
+        // self.STAT = self.mmu.read_byte(0xff41);
+        // self.BGP = self.mmu.read_byte(0xff47);
 
         let tile_set_index : bool = (self.LCDC & 0b0000_1000) == 0b0000_1000;  // tile set 0 or 1
         if (tile_set_index == true){   // using tile set 1
